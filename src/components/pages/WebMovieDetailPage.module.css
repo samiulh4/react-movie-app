@@ -1,0 +1,6 @@
+.movie_figure_picture img{
+    height: 300px;
+    width: 100%;
+    background-size: 100% 100%;
+    background-position: center;
+}

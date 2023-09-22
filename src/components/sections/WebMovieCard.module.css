@@ -1,0 +1,13 @@
+.movie_image{
+    height: 200px;
+}
+.movie_title{
+    overflow: hidden;
+    white-space: normal;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    text-overflow: ellipsis;
+    height: 3em;
+    line-height: 1.5em;
+}

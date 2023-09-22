@@ -1,12 +1,15 @@
 import React from "react";
+import {BrowserRouter} from "react-router-dom";
+import WebRoutes from "./WebRoutes";
 
-
-function App() {
-  return (
-      <div className='container'>
-        <h1>Hello World !</h1>
-      </div>
-  );
-}
+const App = () => {
+    return (
+        <BrowserRouter>
+            <div>
+                <WebRoutes/>
+            </div>
+        </BrowserRouter>
+    );
+};
 
 export default App;

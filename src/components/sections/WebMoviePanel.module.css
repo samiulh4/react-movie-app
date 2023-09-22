@@ -1,0 +1,39 @@
+/* WebMoviePanel.module.css */
+.movie_card {
+    width: 100%;
+    height: 236px; /* Set a maximum height */
+
+    /* Add the blur effect */
+    /*filter: grayscale(80%);*/
+
+    background-size: cover; /* Maintain aspect ratio and cover the container */
+    background-repeat: no-repeat;
+    background-position: center center;
+
+    margin-top: 10px; /* Adjust margin as needed for the gap between cards */
+    margin-bottom: 10px;
+    display: flex; /* Add this to establish flex layout */
+    flex-direction: column;
+    justify-content: space-between; /* Distribute space vertically */
+
+}
+.movie_box {
+    flex: 1; /* Expand to fill available space */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center; /* Use "align-items" instead of "justify-items" */
+    text-align: center;
+    max-height: 100%;
+}
+.movie_name {
+    color: white;
+}
+.movie_details_link{
+
+}
+.gradient_background{
+    background: linear-gradient(black, black);
+    /* other CSS properties */
+}
+/* You can define styles for .movie_details_link here if needed */

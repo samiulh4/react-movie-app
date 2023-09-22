@@ -1,0 +1,11 @@
+npm install -g create-react-app
+
+npx create-react-app react-movies-app
+npm install react@18 // If in case
+npm install bootstrap
+
+https://www.justwatch.com/in
+
+https://images.justwatch.com/poster/158409405/s166/the-witcher.webp
+https://images.justwatch.com/poster/303059459/s166/guardians-of-the-galaxy-vol-3.webp
+https://images.justwatch.com/poster/305345777/s166/transformers-rise-of-the-beasts.webp
