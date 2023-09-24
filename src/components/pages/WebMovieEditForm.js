@@ -6,6 +6,9 @@ import defaultImage from "../../images/default-image.jpg";
 import apiUrl from "../apiConfig";
 import webUrl from "../webUrlConfig";
 import handleImagePathError from "../config/ImageErrorPath";
+import ReactSelect from "react-select"; // Import react-select
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 
 const WebMovieEditForm = (props) => {
 
@@ -16,14 +19,18 @@ const WebMovieEditForm = (props) => {
     const [language_id, setLanguage] = useState(props.editMovieData.language_id);
     const [country_id, setCountry] = useState(props.editMovieData.country_id);
     const [picture, setPicture] = useState(null);
-    const [movieImg, setMovieImg] = useState(webUrl+props.editMovieData.picture);
+    const [movieImg, setMovieImg] = useState(webUrl + props.editMovieData.picture);
     const [cover, setCover] = useState(null);
-    const [movieCover, setMovieCover] = useState(webUrl+props.editMovieData.cover);
+    const [movieCover, setMovieCover] = useState(webUrl + props.editMovieData.cover);
 
     const [countries, setCountries] = useState([]);
     const [languages, setLanguages] = useState([]);
     const [alertMsg, setAlertMsg] = useState('');
     const [alertType, setAlertType] = useState('alert-info');
+
+    const [selectedLanguage, setSelectedLanguage] = useState(null); // If it not used then change value not displayed.
+    const [selectedCountry, setSelectedCountry] = useState(null);
+
 
     const fetchCountries = async () => {
         try {
@@ -34,7 +41,7 @@ const WebMovieEditForm = (props) => {
         } catch (error) {
             console.error('Error fetching countries:', error);
         }
-    };
+    }
     const fetchLanguages = async () => {
         try {
             const response = await axios.get(`${apiUrl}data/get-languages`);
@@ -47,12 +54,46 @@ const WebMovieEditForm = (props) => {
         } catch (error) {
             console.error('Error fetching languages:', error);
         }
-    };
-
+    }
     useEffect(() => {
         fetchCountries();
         fetchLanguages();
     }, []);
+    const languageOptions = languages.map((language) => ({
+        value: language.id,
+        label: language.language_name,
+    }));
+    const countryOptions = countries.map((country) => ({
+        value: country.id,
+        label: country.nice_name_en,
+    }));
+    useEffect(() => {
+        if (props.editMovieData.language_id) {
+            const initialLanguage = languages.find(
+                (language) => language.id === props.editMovieData.language_id
+            );
+            if (initialLanguage) {
+                setSelectedLanguage({
+                    value: initialLanguage.id,
+                    label: initialLanguage.language_name,
+                });
+            }
+        }
+    }, [props.editMovieData.language_id, languages]);
+
+    useEffect(() => {
+        if (props.editMovieData.country_id) {
+            const initialCountry = countries.find(
+                (country) => country.id === props.editMovieData.country_id
+            );
+            if (initialCountry) {
+                setSelectedCountry({
+                    value: initialCountry.id,
+                    label: initialCountry.nice_name_en,
+                });
+            }
+        }
+    }, [props.editMovieData.country_id, countries]);
 
     const handleTitle = (e) => {
         setTitle(e.target.value);
@@ -60,8 +101,9 @@ const WebMovieEditForm = (props) => {
     const handleReleasedYear = (e) => {
         setReleasedYear(e.target.value);
     }
-    const handleReleasedDate = (e) => {
-        setReleasedDate(e.target.value);
+    const handleReleasedDate = (date) => {
+        const formattedDate = date.toISOString().split('T')[0];
+        setReleasedDate(formattedDate);
     }
     const handleDescription = (e) => {
         setDescription(e.target.value);
@@ -84,13 +126,14 @@ const WebMovieEditForm = (props) => {
         };
         reader.readAsDataURL(file);
     }
-    const handleLanguage = (e) => {
-        setLanguage(e.target.value);
+    const handleLanguage = (selectedOption) => {
+        setSelectedLanguage(selectedOption);
+        setLanguage(selectedOption.value);
     }
-    const handleCountry = (e) => {
-        setCountry(e.target.value);
+    const handleCountry = (selectedOption) => {
+        setSelectedCountry(selectedOption);
+        setCountry(selectedOption.value);
     }
-
     const handleSubmit = async (e) => {
         e.preventDefault();
         let isValid = true;
@@ -141,7 +184,9 @@ const WebMovieEditForm = (props) => {
                 formdata.append('cover', cover);
                 formdata.append('language_id', language_id);
                 formdata.append('country_id', country_id);
-                await axiosConfig.post('movie/update/'+props.movieId, formdata)
+                // console.log(released_date);
+                // return false;
+                await axiosConfig.post('movie/update/' + props.movieId, formdata)
                     .then((response) => {
                         if (response.data.responseStatus === 1) {
                             setTitle(response.data.movie.title);
@@ -149,21 +194,23 @@ const WebMovieEditForm = (props) => {
                             setReleasedDate(response.data.movie.released_date);
                             setDescription(response.data.movie.description);
                             setPicture('');
-                            setMovieImg(webUrl+response.data.movie.picture);
+                            setMovieImg(webUrl + response.data.movie.picture);
                             setCover('');
-                            setMovieCover(webUrl+response.data.movie.cover);
+                            setMovieCover(webUrl + response.data.movie.cover);
                             setLanguage(response.data.movie.language_id);
                             setCountry(response.data.movie.country_id);
                         }
                         setAlertType('alert-success');
                         setAlertMsg(response.data.message);
                     }).catch((error) => {
-                        console.log('error', error);
-                        setAlertMsg('Error');
+                        console.log('Axios catch error', error);
+                        setAlertType('alert-danger');
+                        setAlertMsg(error.message);
                     });
             } catch (error) {
+                console.log('Try catch error', error);
+                setAlertType('alert-danger');
                 setAlertMsg(error);
-                console.log('catch-error', error);
             }
         } else {
             setAlertType('alert-danger');
@@ -182,13 +229,13 @@ const WebMovieEditForm = (props) => {
                                    onChange={handlePicture}/>
                         </div>
                         <div className="col-md-6">
-                            {movieImg?(
+                            {movieImg ? (
                                 <img src={movieImg} className="img-fluid img-thumbnail rounded float-end"
                                      alt="..."
                                      style={{height: '200px', width: '200px'}}
                                      onError={handleImagePathError}
                                 />
-                            ):(
+                            ) : (
                                 <img src={defaultImage} className="img-fluid img-thumbnail rounded float-end"
                                      alt="..."
                                      style={{height: '200px', width: '200px'}}/>
@@ -204,13 +251,13 @@ const WebMovieEditForm = (props) => {
                                    onChange={handleCover}/>
                         </div>
                         <div className="col-md-6">
-                            {movieCover?(
+                            {movieCover ? (
                                 <img src={movieCover} className="img-fluid img-thumbnail rounded float-end"
                                      alt="..."
                                      style={{height: '200px', width: '200px'}}
                                      onError={handleImagePathError}
                                 />
-                            ):(
+                            ) : (
                                 <img src={defaultImage} className="img-fluid img-thumbnail rounded float-end"
                                      alt="..."
                                      style={{height: '200px', width: '200px'}}/>
@@ -250,9 +297,16 @@ const WebMovieEditForm = (props) => {
                         </div>
                         <div className="col-md-6">
                             <label className="form-label"><strong>Release Date</strong></label>
-                            <input type="date" id="released_date" className="form-control"
-                                   value={released_date}
-                                   onChange={handleReleasedDate}/>
+                            <DatePicker
+                                id="released_date"
+                                selected={released_date ? new Date(released_date) : null}
+                                onChange={(date) => handleReleasedDate(date)}
+                                className="form-control"
+                                dateFormat="yyyy-MM-dd"
+                                placeholderText="yyyy-mm-dd"
+                                showYearDropdown
+                                scrollableYearDropdown
+                            />
                         </div>
                     </div>
                 </div>
@@ -261,47 +315,23 @@ const WebMovieEditForm = (props) => {
                     <div className="row">
                         <div className="col-md-6">
                             <label className="form-label"><strong>Language</strong></label>
-                            <select
-                                className="form-select"
+                            <ReactSelect
                                 id="language_id"
-                                value={language_id}
+                                value={selectedLanguage}
                                 onChange={handleLanguage}
-                            >
-                                <option value="">--Select LANGUAGE--</option>
-                                {languages.length > 0 ? (
-                                    languages.map((language) => (
-                                        <option key={language.id} value={language.id}>
-                                            {language.language_name}
-                                        </option>
-                                    ))
-                                ) : (
-                                    <option value="">Loading...</option>
-                                )}
-                                <option value="12">Bengali-বাংলা</option>
-                                <option value="26">English</option>
-                                <option value="56">Hindi-हिन्दी</option>
-                                <option value="132">Urdu-اردو</option>
-                            </select>
+                                options={languageOptions}
+                                placeholder="--Select Language--"
+                            />
                         </div>
                         <div className="col-md-6">
                             <label className="form-label"><strong>Country</strong></label>
-                            <select
-                                className="form-select"
+                            <ReactSelect
                                 id="country_id"
-                                value={country_id}
+                                value={selectedCountry}
                                 onChange={handleCountry}
-                            >
-                                <option value="">--SELECT COUNTRY--</option>
-                                {countries.length > 0 ? (
-                                    countries.map((country) => (
-                                        <option key={country.id} value={country.id}>
-                                            {country.nice_name_en}
-                                        </option>
-                                    ))
-                                ) : (
-                                    <option value="">Loading...</option>
-                                )}
-                            </select>
+                                options={countryOptions}
+                                placeholder="--Select Country--"
+                            />
                         </div>
 
                     </div>
