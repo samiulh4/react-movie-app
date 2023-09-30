@@ -33,16 +33,10 @@ const WebMoviesPage = () => {
             //setAlertMsg(error);
         });
     }, []);
-    const config = {
-        headers: {
-            'Content-Type': 'application/json',
-        },
-    };
-
     const submitSearchData = async (e) => {
         e.preventDefault();
         try {
-            await axios.get(`${webUrl}movie/search-data/${searchData}`)
+            await axios.get(`${apiUrl}movie/search-data/${searchData}`)
                 .then((response) => {
                     if (response.data.responseStatus === 1) {
                         setMovies(response.data.movies);
@@ -51,13 +45,13 @@ const WebMoviesPage = () => {
                     }
                 }).catch((error) => {
                     setAlertType('alert-danger');
-                    setAlertMsg(error.name + '=>' +error.message);
+                    setAlertMsg(error.name + '=>' + error.message);
                     console.log(error);
                 });
         } catch (error) {
             console.log('Try catch error', error);
-            // setAlertType('alert-danger');
-            // setAlertMsg(error);
+            setAlertType('alert-danger');
+            setAlertMsg(error.message);
         }
     }
     return (<>
@@ -81,7 +75,7 @@ const WebMoviesPage = () => {
                 ) : null}
             </div>
             <div className="row">
-                {movies.map(movie => (
+                {movies.length > 0 ? (movies.map(movie => (
                     <WebMovieCard
                         key={movie.id}
                         movie_id={movie.id}
@@ -91,7 +85,9 @@ const WebMoviesPage = () => {
                         movie_year={movie.released_year}
                         movie_language={movie.language_name}
                     />
-                ))}
+                ))) : (
+                    <h1 className="text-center text-danger mt-4">No movies found !</h1>
+                )}
             </div>
         </div>
         <WebFooter/>
