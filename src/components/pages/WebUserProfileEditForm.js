@@ -2,14 +2,17 @@ import React, {useState, useEffect} from 'react';
 import axiosConfig from "../axiosConfig";
 import WebAlertMessage from "./WebAlertMessage";
 import webUrl from "../webUrlConfig";
+import handleImagePathError from "../config/ImageErrorPath";
+import DefaultUserImage from "../../images/default-user.jpg";
 
 const WebUserProfileEditForm = (props) => {
     // const {authUser} = useAuthContext();
     const [name, setName] = useState('');
     const [gender, setGender] = useState('');
-    const [userImage, setUserImage] = useState('');
+    const [userImage, setUserImage] = useState(DefaultUserImage);
     const [avatar, setaAatar] = useState(null);
     const [alertMsg, setAlertMsg] = useState('');
+    const [alertType, setAlertType] = useState('alert-info');
 
     const handleName = (e) => {
         setName(e.target.value);
@@ -32,8 +35,9 @@ const WebUserProfileEditForm = (props) => {
         if (props.editUserData) {
             setName(props.editUserData.name || '');
             setGender(props.editUserData.gender || '');
-            setUserImage(webUrl+props.editUserData.avatar || '');
+            setUserImage(webUrl+props.editUserData.avatar || DefaultUserImage);
         }
+       // console.log(userImage);
     }, [props.editUserData]);
     // if npt use this way not working..
 
@@ -49,20 +53,24 @@ const WebUserProfileEditForm = (props) => {
                     if (response.data.responseStatus === 1) {
                         setName(response.data.user.name);
                         setGender(response.data.user.gender);
-                        setUserImage(response.data.user.avatar);
+                        setUserImage(webUrl+response.data.user.avatar);
                     }
+                    setAlertType('alert-success');
                     setAlertMsg(response.data.message);
                 }).catch((error) => {
-                    console.log('error', error);
-                    setAlertMsg(error);
+                    //console.log('Axios catch error =>', error);
+                    setAlertType('alert-danger');
+                    setAlertMsg(error.message);
                 });
         } catch (error) {
-            console.log('catch-error', error);
+            console.log('Try catch error', error);
+            setAlertType('alert-danger');
+            setAlertMsg(error.message);
         }
     }
     return (
         <>
-            <WebAlertMessage message={alertMsg} type={`alert-info`}/>
+            <WebAlertMessage message={alertMsg} type={alertType}/>
             <form encType="multipart/form-data" onSubmit={handleSubmit}>
                 <div className="form-group">
                     <div className="row">
@@ -74,7 +82,9 @@ const WebUserProfileEditForm = (props) => {
                         <div className="col-md-6">
                             <img src={userImage} className="img-fluid img-thumbnail rounded float-end"
                                  alt="..."
-                                 style={{height: '200px', width: '200px'}}/>
+                                 style={{height: '200px', width: '200px'}}
+                                 onError={handleImagePathError}
+                            />
 
                         </div>
                     </div>

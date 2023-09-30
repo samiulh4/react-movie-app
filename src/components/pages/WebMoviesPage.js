@@ -7,15 +7,23 @@ import axios from "axios";
 import webUrl from "../webUrlConfig";
 import WebMovieCard from "../sections/WebMovieCard";
 import {useAuthContext} from "../AuthContext";
+import WebAlertMessage from "./WebAlertMessage";
 
 const WebMoviesPage = () => {
-    const { authUser } = useAuthContext();
+    const {authUser} = useAuthContext();
     const [movies, setMovies] = useState([]);
+    const [searchData, setSearchData] = useState(null);
+
+    const [alertMsg, setAlertMsg] = useState('');
+    const [alertType, setAlertType] = useState('alert-danger');
+
+    const handleSearchData = (e) => {
+        setSearchData(e.target.value);
+    }
     useEffect(() => {
         axios.get(`${apiUrl}movie/get-web-movies`)
             .then((response) => {
                 if (response.data.responseStatus === 1) {
-                    console.log(response.data.movies);
                     setMovies(response.data.movies);
                 } else {
                     //setAlertMsg(response.data.message);
@@ -25,16 +33,53 @@ const WebMoviesPage = () => {
             //setAlertMsg(error);
         });
     }, []);
+    const config = {
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    };
+
+    const submitSearchData = async (e) => {
+        e.preventDefault();
+        try {
+            await axios.get(`${webUrl}movie/search-data/${searchData}`)
+                .then((response) => {
+                    if (response.data.responseStatus === 1) {
+                        setMovies(response.data.movies);
+                    } else {
+                        //setAlertMsg(response.data.message);
+                    }
+                }).catch((error) => {
+                    setAlertType('alert-danger');
+                    setAlertMsg(error.name + '=>' +error.message);
+                    console.log(error);
+                });
+        } catch (error) {
+            console.log('Try catch error', error);
+            // setAlertType('alert-danger');
+            // setAlertMsg(error);
+        }
+    }
     return (<>
         <WebNav/>
         <div className="container-fluid">
-            {authUser ?(
-                <div className="row">
-                    <div className="col-md-12 text-end pt-2">
+            <WebAlertMessage message={alertMsg} type={alertType}/>
+            <div className="row">
+                <div className="col-md-8 py-2">
+                    <form className="d-flex flex-row flex-wrap justify-content-center" onSubmit={submitSearchData}>
+                        <div className="input-group w-100">
+                            <input type="text" id="search" className="form-control" placeholder="Search..."
+                                   onChange={handleSearchData}/>
+                            <button type="submit" className="btn btn-success btn-md">Search</button>
+                        </div>
+                    </form>
+                </div>
+                {authUser ? (
+                    <div className="col-md-4 text-end pt-2">
                         <Link className="btn btn-md btn-success" to="/web/movie/add">Add Movie</Link>
                     </div>
-                </div>
-            ):null}
+                ) : null}
+            </div>
             <div className="row">
                 {movies.map(movie => (
                     <WebMovieCard

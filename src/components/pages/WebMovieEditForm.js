@@ -9,6 +9,7 @@ import handleImagePathError from "../config/ImageErrorPath";
 import ReactSelect from "react-select"; // Import react-select
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import { Link } from "react-router-dom";
 
 const WebMovieEditForm = (props) => {
 
@@ -338,7 +339,9 @@ const WebMovieEditForm = (props) => {
                 </div>
                 <div className="row">
                     <div className="col-md-6 text-start">
-                        <button type="button" className="btn btn-md btn-secondary mt-3">Back</button>
+                        {props.movieId?(
+                            <Link  className="btn btn-md btn-secondary mt-3" to={`/web/movie/view/${props.movieId}`}>Back</Link>
+                        ):null}
                     </div>
                     <div className="col-md-6 text-end">
                         <button type="submit" className="btn btn-success mt-3">Submit</button>

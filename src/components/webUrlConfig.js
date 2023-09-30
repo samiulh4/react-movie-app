@@ -1,2 +1,2 @@
-const webUrl = 'http://localhost:9000/';
+const webUrl = 'http://localhost:8000/';
 export default webUrl;
