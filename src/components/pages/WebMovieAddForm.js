@@ -13,6 +13,7 @@ const WebMovieAddForm = () => {
     const [released_date, setReleasedDate] = useState('');
     const [description, setDescription] = useState('');
     const [picture, setPicture] = useState(null);
+    const [picture_url, setPictureUrl] = useState('');
     const [movieImg, setMovieImg] = useState(defaultMoviePoster);
     const [language_id, setLanguage] = useState('');
     const [country_id, setCountry] = useState('');
@@ -77,16 +78,14 @@ const WebMovieAddForm = () => {
     const handleCountry = (e) => {
         setCountry(e.target.value);
     }
+    const handlePictureUrl = (e) => {
+        setPictureUrl(e.target.value);
+    }
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         let isValid = true;
-        if (!picture || !picture.name) {
-            isValid = false;
-            document.getElementById('picture').style.border = '1px solid red';
-        } else {
-            document.getElementById('picture').style.border = '1px solid #ccc';
-        }
+
         if (!title) {
             isValid = false;
             document.getElementById('title').style.border = '1px solid red';
@@ -117,6 +116,14 @@ const WebMovieAddForm = () => {
         } else {
             document.getElementById('country_id').style.border = '1px solid #ccc';
         }
+        if ((!picture || !picture.name) && (!picture_url)) {
+            isValid = false;
+            document.getElementById('picture').style.border = '1px solid red';
+            document.getElementById('picture_url').style.border = '1px solid red';
+        } else {
+            document.getElementById('picture').style.border = '1px solid #ccc';
+            document.getElementById('picture_url').style.border = '1px solid #ccc';
+        }
         if (isValid) {
             try {
                 var formdata = new FormData();
@@ -127,6 +134,7 @@ const WebMovieAddForm = () => {
                 formdata.append('picture', picture);
                 formdata.append('language_id', language_id);
                 formdata.append('country_id', country_id);
+                formdata.append('picture_url', picture_url);
                 await axiosConfig.post('movie/store', formdata)
                     .then((response) => {
                         if (response.data.responseStatus === 1) {
@@ -138,6 +146,7 @@ const WebMovieAddForm = () => {
                             setMovieImg(defaultMoviePoster);
                             setLanguage('');
                             setCountry('');
+                            setPictureUrl('');
                         }
                         setAlertType('alert-success');
                         setAlertMsg(response.data.message);
@@ -160,24 +169,9 @@ const WebMovieAddForm = () => {
             <form encType="multipart/form-data" onSubmit={handleSubmit}>
                 <div className="form-group">
                     <div className="row">
-                        <div className="col-md-6">
-                            <label className="form-label"><strong>Upload Movie Picture</strong></label>
-                            <input className="form-control" type="file" id="picture"
-                                   onChange={handlePicture}/>
-                        </div>
-                        <div className="col-md-6">
-                            <img src={movieImg} className="img-fluid img-thumbnail rounded float-end"
-                                 alt="..."
-                                 style={{height: '200px', width: '200px'}}/>
-
-                        </div>
-                    </div>
-                </div>
-                <div className="form-group">
-                    <div className="row">
                         <div className="col-md-12">
                             <label className="form-label"><strong>Title</strong></label>
-                            <input type="name" id="title" className="form-control"
+                            <input type="text" id="title" className="form-control"
                                    value={title}
                                    onChange={handleTitle}/>
                         </div>
@@ -192,12 +186,11 @@ const WebMovieAddForm = () => {
                         </div>
                     </div>
                 </div>
-
                 <div className="form-group">
                     <div className="row">
                         <div className="col-md-6">
                             <label className="form-label"><strong>Release Year</strong></label>
-                            <input type="name" id="released_year" className="form-control"
+                            <input type="text" id="released_year" className="form-control"
                                    value={released_year}
                                    onChange={handleReleasedYear}/>
                         </div>
@@ -209,7 +202,6 @@ const WebMovieAddForm = () => {
                         </div>
                     </div>
                 </div>
-
                 <div className="form-group">
                     <div className="row">
                         <div className="col-md-6">
@@ -259,6 +251,32 @@ const WebMovieAddForm = () => {
 
                     </div>
                 </div>
+                <div className="form-group">
+                    <div className="row">
+                        <div className="col-md-6 mt-4">
+                            <label className="form-label"><strong>Upload Movie Picture</strong></label>
+                            <input className="form-control" type="file" id="picture"
+                                   onChange={handlePicture}/>
+                        </div>
+                        <div className="col-md-6 mt-4">
+                            <img src={movieImg} className="img-fluid img-thumbnail rounded float-end"
+                                 alt="..."
+                                 style={{height: '200px', width: '200px'}}/>
+
+                        </div>
+                    </div>
+                </div>
+                <div className="form-group">
+                    <div className="row">
+                        <div className="col-md-12">
+                            <label className="form-label"><strong>Movie Picture URL</strong></label>
+                            <input type="text" id="picture_url" className="form-control"
+                                   value={picture_url}
+                                   onChange={handlePictureUrl}/>
+                        </div>
+                    </div>
+                </div>
+                <hr/>
                 <div className="row">
                     <div className="col-md-6 text-start">
                         <button type="button" className="btn btn-md btn-secondary mt-3">Back</button>
@@ -267,7 +285,6 @@ const WebMovieAddForm = () => {
                         <button type="submit" className="btn btn-success mt-3">Submit</button>
                     </div>
                 </div>
-
             </form>
         </>
     );

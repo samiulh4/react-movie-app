@@ -9,7 +9,7 @@ const WebMovieCard = (props) => {
         e.target.src = defaultMoviePoster;
     };
     return (
-        <div className="col-xxl-2 col-xl-2 col-lg-3 col-md-4 col-sm-6">
+        <div className="col-xxl-2 col-xl-3 col-lg-3 col-md-4 col-sm-6">
             <div className="card my-2">
                 <img
                     src={props.movie_picture}

@@ -20,9 +20,11 @@ const WebMovieEditForm = (props) => {
     const [language_id, setLanguage] = useState(props.editMovieData.language_id);
     const [country_id, setCountry] = useState(props.editMovieData.country_id);
     const [picture, setPicture] = useState(null);
-    const [movieImg, setMovieImg] = useState(webUrl + props.editMovieData.picture);
+    const [picture_url, setPictureUrl] = useState('');
+    const [movieImg, setMovieImg] = useState(props.editMovieData.picture ? (webUrl + props.editMovieData.picture):defaultImage);
     const [cover, setCover] = useState(null);
-    const [movieCover, setMovieCover] = useState(webUrl + props.editMovieData.cover);
+    const [cover_url, setCoverUrl] = useState('');
+    const [movieCover, setMovieCover] = useState(props.editMovieData.cover? (webUrl + props.editMovieData.cover):defaultImage);
 
     const [countries, setCountries] = useState([]);
     const [languages, setLanguages] = useState([]);
@@ -135,6 +137,20 @@ const WebMovieEditForm = (props) => {
         setSelectedCountry(selectedOption);
         setCountry(selectedOption.value);
     }
+    const handlePictureUrl = (e) => {
+        setPictureUrl(e.target.value);
+    }
+    const handleCoverUrl = (e) => {
+        setCoverUrl(e.target.value);
+    }
+    const handleCoverUrlBlur = (e) => {
+        const coverUrl = e.target.value;
+        setMovieCover(coverUrl);
+    };
+    const handlePictureUrlBlur = (e) => {
+        const pictureUrl = e.target.value;
+        setMovieImg(pictureUrl);
+    };
     const handleSubmit = async (e) => {
         e.preventDefault();
         let isValid = true;
@@ -185,6 +201,8 @@ const WebMovieEditForm = (props) => {
                 formdata.append('cover', cover);
                 formdata.append('language_id', language_id);
                 formdata.append('country_id', country_id);
+                formdata.append('picture_url', picture_url);
+                formdata.append('cover_url', cover_url);
                 // console.log(released_date);
                 // return false;
                 await axiosConfig.post('movie/update/' + props.movieId, formdata)
@@ -200,6 +218,8 @@ const WebMovieEditForm = (props) => {
                             setMovieCover(webUrl + response.data.movie.cover);
                             setLanguage(response.data.movie.language_id);
                             setCountry(response.data.movie.country_id);
+                            setPictureUrl('');
+                            setCoverUrl('');
                         }
                         setAlertType('alert-success');
                         setAlertMsg(response.data.message);
@@ -210,8 +230,8 @@ const WebMovieEditForm = (props) => {
                     });
             } catch (error) {
                 console.log('Try catch error', error);
-                setAlertType('alert-danger');
-                setAlertMsg(error);
+                setAlertType('alert-warning');
+                setAlertMsg(error.message);
             }
         } else {
             setAlertType('alert-danger');
@@ -222,52 +242,6 @@ const WebMovieEditForm = (props) => {
         <>
             <WebAlertMessage message={alertMsg} type={alertType}/>
             <form encType="multipart/form-data" onSubmit={handleSubmit}>
-                <div className="form-group">
-                    <div className="row">
-                        <div className="col-md-6">
-                            <label className="form-label"><strong>Upload Movie Picture</strong></label>
-                            <input className="form-control" type="file" id="picture"
-                                   onChange={handlePicture}/>
-                        </div>
-                        <div className="col-md-6">
-                            {movieImg ? (
-                                <img src={movieImg} className="img-fluid img-thumbnail rounded float-end"
-                                     alt="..."
-                                     style={{height: '200px', width: '200px'}}
-                                     onError={handleImagePathError}
-                                />
-                            ) : (
-                                <img src={defaultImage} className="img-fluid img-thumbnail rounded float-end"
-                                     alt="..."
-                                     style={{height: '200px', width: '200px'}}/>
-                            )}
-                        </div>
-                    </div>
-                </div>
-                <div className="form-group">
-                    <div className="row">
-                        <div className="col-md-6">
-                            <label className="form-label"><strong>Upload Movie Cover</strong></label>
-                            <input className="form-control" type="file" id="cover"
-                                   onChange={handleCover}/>
-                        </div>
-                        <div className="col-md-6">
-                            {movieCover ? (
-                                <img src={movieCover} className="img-fluid img-thumbnail rounded float-end"
-                                     alt="..."
-                                     style={{height: '200px', width: '200px'}}
-                                     onError={handleImagePathError}
-                                />
-                            ) : (
-                                <img src={defaultImage} className="img-fluid img-thumbnail rounded float-end"
-                                     alt="..."
-                                     style={{height: '200px', width: '200px'}}/>
-                            )}
-
-
-                        </div>
-                    </div>
-                </div>
                 <div className="form-group">
                     <div className="row">
                         <div className="col-md-12">
@@ -337,6 +311,75 @@ const WebMovieEditForm = (props) => {
 
                     </div>
                 </div>
+                <div className="form-group">
+                    <div className="row">
+                        <div className="col-md-6 mt-4">
+                            <label className="form-label"><strong>Upload Movie Picture</strong></label>
+                            <input className="form-control" type="file" id="picture"
+                                   onChange={handlePicture}/>
+                        </div>
+                        <div className="col-md-6 mt-4">
+                            {movieImg ? (
+                                <img src={movieImg} className="img-fluid img-thumbnail rounded float-end"
+                                     alt="..."
+                                     style={{height: '200px', width: '200px'}}
+                                     onError={handleImagePathError}
+                                />
+                            ) : (
+                                <img src={defaultImage} className="img-fluid img-thumbnail rounded float-end"
+                                     alt="..."
+                                     style={{height: '200px', width: '200px'}}/>
+                            )}
+                        </div>
+                    </div>
+                </div>
+                <div className="form-group">
+                    <div className="row">
+                        <div className="col-md-12">
+                            <label className="form-label"><strong>Movie Picture URL</strong></label>
+                            <input type="text" id="picture_url" className="form-control"
+                                   value={picture_url}
+                                   onChange={handlePictureUrl}
+                                   onBlur={handlePictureUrlBlur} />
+                        </div>
+                    </div>
+                </div>
+                <div className="form-group">
+                    <div className="row">
+                        <div className="col-md-6 mt-4">
+                            <label className="form-label"><strong>Upload Movie Cover</strong></label>
+                            <input className="form-control" type="file" id="cover"
+                                   onChange={handleCover}/>
+                        </div>
+                        <div className="col-md-6 mt-4">
+                            {movieCover ? (
+                                <img src={movieCover} className="img-fluid img-thumbnail rounded float-end"
+                                     alt="..."
+                                     style={{height: '200px', width: '200px'}}
+                                     onError={handleImagePathError}
+                                />
+                            ) : (
+                                <img src={defaultImage} className="img-fluid img-thumbnail rounded float-end"
+                                     alt="..."
+                                     style={{height: '200px', width: '200px'}}/>
+                            )}
+
+
+                        </div>
+                    </div>
+                </div>
+                <div className="form-group">
+                    <div className="row">
+                        <div className="col-md-12">
+                            <label className="form-label"><strong>Movie Cover URL</strong></label>
+                            <input type="text" id="cover_url" className="form-control"
+                                   value={cover_url}
+                                   onChange={handleCoverUrl}
+                                   onBlur={handleCoverUrlBlur} />
+                        </div>
+                    </div>
+                </div>
+                <hr/>
                 <div className="row">
                     <div className="col-md-6 text-start">
                         {props.movieId?(

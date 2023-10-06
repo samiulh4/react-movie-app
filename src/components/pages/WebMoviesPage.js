@@ -8,6 +8,7 @@ import webUrl from "../webUrlConfig";
 import WebMovieCard from "../sections/WebMovieCard";
 import {useAuthContext} from "../AuthContext";
 import WebAlertMessage from "./WebAlertMessage";
+import WebMovieSearchCard from "../sections/WebMovieSearchCard";
 
 const WebMoviesPage = () => {
     const {authUser} = useAuthContext();
@@ -74,21 +75,30 @@ const WebMoviesPage = () => {
                     </div>
                 ) : null}
             </div>
+            <hr/>
             <div className="row">
-                {movies.length > 0 ? (movies.map(movie => (
-                    <WebMovieCard
-                        key={movie.id}
-                        movie_id={movie.id}
-                        movie_title={movie.title}
-                        movie_picture={`${webUrl}${movie.picture}`}
-                        movie_country={movie.country_title}
-                        movie_year={movie.released_year}
-                        movie_language={movie.language_name}
-                    />
-                ))) : (
-                    <h1 className="text-center text-danger mt-4">No movies found !</h1>
-                )}
+                <div className="col-xxl-9 col-lg-9 col-md-9 col-sm-12">
+                    <div className="row">
+                        {movies.length > 0 ? (movies.map(movie => (
+                            <WebMovieCard
+                                key={movie.id}
+                                movie_id={movie.id}
+                                movie_title={movie.title}
+                                movie_picture={`${webUrl}${movie.picture}`}
+                                movie_country={movie.country_title}
+                                movie_year={movie.released_year}
+                                movie_language={movie.language_name}
+                            />
+                        ))) : (
+                            <h1 className="text-center text-danger mt-4">No movies found !</h1>
+                        )}
+                    </div>
+                </div>
+                <div className="col-xxl-3 col-lg-3 col-md-3 col-sm-12">
+                    <WebMovieSearchCard/>
+                </div>
             </div>
+
         </div>
         <WebFooter/>
     </>);

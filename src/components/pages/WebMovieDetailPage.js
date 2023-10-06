@@ -10,17 +10,25 @@ import apiUrl from "../apiConfig";
 import webUrl from "../webUrlConfig";
 import handleImagePathError from "../config/ImageErrorPath";
 import defaultImageUrl from '../../images/default-image.jpg';
+import WebMovieSearchCard from "../sections/WebMovieSearchCard";
+import WebAlertMessage from "./WebAlertMessage";
 
 const WebMovieDetailPage = () => {
     const {movieId} = useParams();
+
+    const [alertMsg, setAlertMsg] = useState('');
+    const [alertType, setAlertType] = useState('alert-info');
+
     const [movieTitle, setMovieTitle] = useState(null);
     const [movieYear, setMovieYear] = useState(null);
     const [movieCreatedAt, setMovieCreatedAt] = useState(null);
-    const [movieAuthorName, setMovieAuthorName] = useState(null);
+    // const [movieAuthorName, setMovieAuthorName] = useState(null);
     const [movieDescription, setMovieDescription] = useState(null);
     const [movieCover, setMovieCover] = useState(defaultImageUrl);
     const [authorCardInfo, setCardAuthorInfo] = useState({});
     const [movieCardInfo, setMovieCardInfo] = useState({});
+
+    const [modifierName, setModifierName] = useState('');
 
 
     const getMovieDataById = useCallback(async () => {
@@ -31,9 +39,12 @@ const WebMovieDetailPage = () => {
                         setMovieTitle(response.data.movie.title);
                         setMovieYear(response.data.movie.released_year);
                         setMovieCreatedAt(response.data.movie.created_at);
-                        setMovieAuthorName(response.data.movie.author_name);
+                        // setMovieAuthorName(response.data.movie.author_name);
                         setMovieDescription(response.data.movie.description);
                         setMovieCover(response.data.movie.cover);
+
+                        setModifierName(response.data.movie.modifier_name);
+
                         const newAuthorInfo = {
                             authorName: response.data.movie.author_name,
                             authorEmail: response.data.movie.author_email,
@@ -44,15 +55,21 @@ const WebMovieDetailPage = () => {
                             moviePicture: response.data.movie.picture,
                             movieLanguage: response.data.movie.language_title,
                             movieCountry: response.data.movie.country_title,
+                            movieReleasedDate:response.data.movie.released_date,
                             movieId: movieId,
                         }
                         setMovieCardInfo(newMovieInfo)
+                    }else{
+                        setAlertType('alert-danger');
+                        setAlertMsg(response.data.message);
                     }
                 }).catch((error) => {
-                    console.log('Axios catch error :', error);
+                    setAlertType('alert-danger');
+                    setAlertMsg('Axios catch ! '+error.message);
                 });
             } catch (error) {
-                console.log('Try catch error :', error);
+                setAlertType('alert-danger');
+                setAlertMsg(error.message);
             }
         }
     }, [movieId]);
@@ -63,13 +80,14 @@ const WebMovieDetailPage = () => {
         <>
             <WebNav/>
             <div className="container mt-4">
+                <WebAlertMessage message={alertMsg} type={alertType}/>
                 <div className="row">
                     <div className="col-lg-8">
                         <div className="article_content">
                             <div className="article_header mb-4">
                                 <h1 className="fw-bolder mb-1">{movieTitle} {movieYear ? `(${movieYear})` : null}</h1>
                                 <div className="article_meta_content text-muted fst-italic mb-2">
-                                    {`Posted on ${movieCreatedAt} updated by ${movieAuthorName}`}
+                                    {`Posted on ${movieCreatedAt} updated by `}<a href="#">{modifierName}</a>
                                 </div>
                                 <a className="badge bg-info text-decoration-none link-light" href="#!">Action</a>
                                 <a className="badge bg-secondary text-decoration-none link-light" href="#!">Drama</a>
@@ -92,7 +110,10 @@ const WebMovieDetailPage = () => {
 
                             </figure>
                             <section className="article_context mb-5">
-                                <p className="fs-5 mb-4">{movieDescription}</p>
+                                <div className="card">
+                                    <div className="card-body"><p className="fs-5 mb-4 card-text text-bg-dark">{movieDescription}</p></div>
+                                </div>
+
                             </section>
                         </div>
                         <section className="mb-5">
@@ -130,16 +151,7 @@ const WebMovieDetailPage = () => {
                     <div className="col-lg-4">
                         <WebMovieDetailCard movieCardInfo={movieCardInfo}/>
                         <WebAuthorCard authorCardInfo={authorCardInfo}/>
-                        <div className="card mb-4">
-                            <div className="card-header">Search</div>
-                            <div className="card-body">
-                                <div className="input-group">
-                                    <input className="form-control" type="text" placeholder="Enter search term..."
-                                           aria-label="Enter search term..." aria-describedby="button-search"/>
-                                    <button className="btn btn-primary" id="button-search" type="button">Go!</button>
-                                </div>
-                            </div>
-                        </div>
+                        <WebMovieSearchCard/>
                         <div className="card mb-4">
                             <div className="card-header">Categories</div>
                             <div className="card-body">

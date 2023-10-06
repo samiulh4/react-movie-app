@@ -5,10 +5,15 @@ import WebMovieEditForm from "./WebMovieEditForm";
 import {useParams} from 'react-router-dom';
 import axios from "axios";
 import apiUrl from "../apiConfig";
+import WebAlertMessage from "./WebAlertMessage";
 
 const WebMovieEditPage = () => {
     const {movieId} = useParams();
     const [editMovieData, setEditMovieData] = useState(null);
+
+    const [alertMsg, setAlertMsg] = useState('');
+    const [alertType, setAlertType] = useState('alert-info');
+
     const getMovieDataById = useCallback(async () => {
         if (movieId) {
             try {
@@ -17,10 +22,12 @@ const WebMovieEditPage = () => {
                         setEditMovieData(response.data.movie);
                     }
                 }).catch((error) => {
-                    console.log('Axios catch error :', error);
+                    setAlertType('alert-danger');
+                    setAlertMsg('Axios catch error : '+error.message);
                 });
             } catch (error) {
-                console.log('Try catch error :', error);
+                setAlertType('alert-danger');
+                setAlertMsg('Try catch error : '+error.message);
             }
         }
     }, [movieId]);
@@ -30,6 +37,7 @@ const WebMovieEditPage = () => {
     return (<>
         <WebNav/>
         <div className="container-fluid">
+            <WebAlertMessage message={alertMsg} type={alertType}/>
             <div className="row">
                 <div className="col-md-12">
                     <div className="col-md-6 mx-auto">

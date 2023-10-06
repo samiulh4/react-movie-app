@@ -27,6 +27,7 @@ const WebMovieDetailCard = (props) => {
                 <h6 className="card-text">Country: <span
                     className="badge bg-primary text-light">{props.movieCardInfo.movieCountry ? (props.movieCardInfo.movieCountry) : null}</span>
                 </h6>
+                <h6 className="card-text text-secondary">Released Date : {props.movieCardInfo.movieReleasedDate ? (props.movieCardInfo.movieReleasedDate) : null}</h6>
                 {authUser?(
                     <Link className="btn btn-sm btn-success" to={`/web/movie/edit/${props.movieCardInfo.movieId}`}>Edit</Link>
                 ):null}
